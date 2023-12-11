@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
+using Core.Persistence.Paging;
 
 namespace Core.Persistence.Repositories;
 
@@ -12,7 +13,7 @@ public interface IAsyncRepository<TEntity, TEntityId> : IQueryable<TEntity> wher
         bool enableTracking = true,
         CancellationToken cancellationToken = default);
 
-    Task<IPaginate<TEntity>> GetListAsync(
+    Task<Paginate<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>> predicate,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
@@ -22,7 +23,7 @@ public interface IAsyncRepository<TEntity, TEntityId> : IQueryable<TEntity> wher
         bool enableTracking = true,
         CancellationToken cancellationToken = default);
 
-    Task<IPaginate<TEntity>> GetListByDynamicAsync(
+    Task<Paginate<TEntity>> GetListByDynamicAsync(
         DynamicQuery dynamic,
         Expression<Func<TEntity, bool>> predicate,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
