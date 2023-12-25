@@ -54,13 +54,13 @@ public static class IQueryableDynamicFilterExtensions
         {
             if (string.IsNullOrEmpty(item.Field))
                 throw new ArgumentException("Invalid Field");
-            if (string.IsNullOrEmpty(item.Dir) || !_orders.Contains(item.Dir))
+            if (string.IsNullOrEmpty(item.Direction) || !_orders.Contains(item.Direction))
                 throw new ArgumentException("Invalid Order Type");
         }
 
         if (sort.Any())
         {
-            string ordering = string.Join(separator: ",", values: sort.Select(s => $"{s.Field} {s.Dir}"));
+            string ordering = string.Join(separator: ",", values: sort.Select(s => $"{s.Field} {s.Direction}"));
             return queryable.OrderBy(ordering);
         }
 

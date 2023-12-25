@@ -5,7 +5,7 @@ using Core.Persistence.Dynamic;
 
 namespace Core.Persistence.Repositories;
 
-public interface IRepository<TEntity, TEntityId> : IQueryable<TEntity> where TEntity : Entity<TEntityId>
+public interface IRepository<TEntity, TEntityId> : IQuery<TEntity> where TEntity : Entity<TEntityId>
 {
     TEntity? GetAsync(
         Expression<Func<TEntity, bool>> predicate,
@@ -35,7 +35,7 @@ public interface IRepository<TEntity, TEntityId> : IQueryable<TEntity> where TEn
         bool enableTracking = true,
         CancellationToken cancellationToken = default);
 
-    TEntity? AnyAsync(
+    bool AnyAsync(
         Expression<Func<TEntity, bool>> predicate,
         bool withDeleted = false,
         bool enableTracking = true,
