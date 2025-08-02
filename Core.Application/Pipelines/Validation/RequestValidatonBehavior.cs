@@ -1,15 +1,42 @@
-﻿using FluentValidation;
+﻿using Core.CrossCuttingConcerns.Exceptions.Types;
+using FluentValidation;
 using MediatR;
+using ValidationException = Core.CrossCuttingConcerns.Exceptions.Types.ValidationException;
 
 namespace Core.Application.Pipelines.Validation;
 
 public class RequestValidatonBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
-    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    private readonly IEnumerable<IValidator<TRequest>> _validators;
+
+    public RequestValidatonBehavior(IEnumerable<IValidator<TRequest>> validators)
+    {
+        this._validators = validators;
+    }
+
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         ValidationContext<object> context = new(request);
 
+        IEnumerable<ValidationExceptionModel> errors = _validators
+            .Select(validator => validator.Validate(context))
+            .SelectMany(result => result.Errors)
+            .Where(error => error != null)
+            .GroupBy(
+                keySelector: p => p.PropertyName,
+                resultSelector: (propertyName, errors) =>
+                    new ValidationExceptionModel
+                    {
+                        Property = propertyName,
+                        Errors = errors.Select(e => e.ErrorMessage)
+                    }
+            ).ToList();
 
+        if (errors.Any())
+            throw new ValidationException(errors);
+
+        TResponse response = await next();
+        return response;
     }
 }
